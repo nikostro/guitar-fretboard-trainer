@@ -299,49 +299,99 @@ main {
   visibility: hidden;
 }
 
-/* Note buttons */
-#note-buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+/* Note wheel */
+#note-wheel-container {
   flex: 1;
-  align-content: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  max-height: 300px;
 }
 
-.note-btn {
-  background: var(--bg-card);
-  border: 2px solid transparent;
-  color: var(--text);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 14px 8px;
-  border-radius: 10px;
+#note-wheel {
+  width: 100%;
+  height: 100%;
+  max-width: 280px;
+  max-height: 280px;
+}
+
+.wheel-segment {
   cursor: pointer;
-  transition: all 0.15s ease;
-  touch-action: manipulation;
+  outline: none;
 }
 
-.note-btn:active {
-  transform: scale(0.95);
+.segment-path {
+  fill: var(--bg-card);
+  stroke: var(--bg-dark);
+  stroke-width: 2;
+  transition: fill 0.15s ease;
 }
 
-.note-btn:hover {
-  border-color: var(--accent);
+.wheel-segment:hover .segment-path,
+.wheel-segment:focus .segment-path {
+  fill: #1e2a4a;
+  stroke: var(--accent);
 }
 
-.note-btn.correct-answer {
-  background: var(--success);
-  color: #000;
+.wheel-segment:active .segment-path {
+  fill: #253154;
 }
 
-.note-btn.wrong-answer {
-  background: var(--error);
-  color: #000;
+.segment-label {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
 }
 
-.note-btn:disabled {
+.wheel-segment.correct-answer .segment-path {
+  fill: var(--success);
+}
+
+.wheel-segment.correct-answer .segment-label {
+  fill: #000;
+}
+
+.wheel-segment.wrong-answer .segment-path {
+  fill: var(--error);
+}
+
+.wheel-segment.wrong-answer .segment-label {
+  fill: #000;
+}
+
+.wheel-segment.disabled {
+  pointer-events: none;
+}
+
+.wheel-segment.disabled .segment-path {
   opacity: 0.5;
-  cursor: not-allowed;
+}
+
+.wheel-segment.disabled .segment-label {
+  opacity: 0.5;
+}
+
+.wheel-segment.disabled.correct-answer .segment-path,
+.wheel-segment.disabled.correct-answer .segment-label,
+.wheel-segment.disabled.wrong-answer .segment-path,
+.wheel-segment.disabled.wrong-answer .segment-label {
+  opacity: 1;
+}
+
+.wheel-segment:focus-visible .segment-path {
+  stroke: white;
+  stroke-width: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment-path {
+    transition: none;
+  }
 }
 
 /* Next button */
@@ -624,8 +674,13 @@ main {
     height: 100px;
   }
 
-  .note-btn {
-    padding: 10px 6px;
+  #note-wheel-container {
+    min-height: 150px;
+    max-height: 200px;
+  }
+
+  .segment-label {
+    font-size: 8px;
   }
 
   #next-btn {
@@ -646,5 +701,18 @@ main {
   #note-dot {
     width: 16px;
     height: 16px;
+  }
+
+  #note-wheel-container {
+    max-height: 350px;
+  }
+
+  #note-wheel {
+    max-width: 320px;
+    max-height: 320px;
+  }
+
+  .segment-label {
+    font-size: 12px;
   }
 }

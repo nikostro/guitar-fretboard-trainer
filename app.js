@@ -117,7 +117,7 @@ function getNoteDisplayName(note) {
 // DOM elements
 const fretboard = document.getElementById('fretboard');
 const noteDot = document.getElementById('note-dot');
-const noteButtonsContainer = document.getElementById('note-buttons');
+const noteWheelContainer = document.getElementById('note-wheel-container');
 const feedbackEl = document.getElementById('feedback');
 const nextBtn = document.getElementById('next-btn');
 const statsToggle = document.getElementById('stats-toggle');
@@ -184,16 +184,83 @@ function initFretboard() {
   }
 }
 
-// Create note buttons
-function initNoteButtons() {
-  NOTE_DISPLAY.forEach(note => {
-    const btn = document.createElement('button');
-    btn.className = 'note-btn';
-    btn.textContent = note;
-    btn.dataset.note = note;
-    btn.addEventListener('click', () => handleGuess(note));
-    noteButtonsContainer.appendChild(btn);
+// Wheel constants
+const WHEEL_RADIUS = 100;
+const INNER_RADIUS = 35;
+const LABEL_RADIUS = 67;
+
+// Calculate SVG path for a pie segment
+function getSegmentPath(index, innerRadius, outerRadius) {
+  const segmentAngle = 360 / NOTE_DISPLAY.length;
+  const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
+  const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
+
+  const x1 = Math.cos(startAngle) * outerRadius;
+  const y1 = Math.sin(startAngle) * outerRadius;
+  const x2 = Math.cos(endAngle) * outerRadius;
+  const y2 = Math.sin(endAngle) * outerRadius;
+  const x3 = Math.cos(endAngle) * innerRadius;
+  const y3 = Math.sin(endAngle) * innerRadius;
+  const x4 = Math.cos(startAngle) * innerRadius;
+  const y4 = Math.sin(startAngle) * innerRadius;
+
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${outerRadius} ${outerRadius} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L ${x3.toFixed(2)} ${y3.toFixed(2)} A ${innerRadius} ${innerRadius} 0 0 0 ${x4.toFixed(2)} ${y4.toFixed(2)} Z`;
+}
+
+// Calculate label position at center of segment
+function getLabelPosition(index, radius) {
+  const segmentAngle = 360 / NOTE_DISPLAY.length;
+  const angle = (index * segmentAngle + segmentAngle / 2 - 90) * (Math.PI / 180);
+  return {
+    x: Math.cos(angle) * radius,
+    y: Math.sin(angle) * radius
+  };
+}
+
+// Create circular note wheel
+function initNoteWheel() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('id', 'note-wheel');
+  svg.setAttribute('viewBox', '-120 -120 240 240');
+  svg.setAttribute('role', 'group');
+  svg.setAttribute('aria-label', 'Note selection wheel');
+
+  NOTE_DISPLAY.forEach((note, index) => {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.classList.add('wheel-segment');
+    group.setAttribute('data-note', note);
+    group.setAttribute('role', 'button');
+    group.setAttribute('tabindex', '0');
+    group.setAttribute('aria-label', note);
+
+    // Create segment path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.classList.add('segment-path');
+    path.setAttribute('d', getSegmentPath(index, INNER_RADIUS, WHEEL_RADIUS));
+    group.appendChild(path);
+
+    // Create label
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.classList.add('segment-label');
+    const labelPos = getLabelPosition(index, LABEL_RADIUS);
+    label.setAttribute('x', labelPos.x.toFixed(2));
+    label.setAttribute('y', labelPos.y.toFixed(2));
+    label.textContent = note;
+    group.appendChild(label);
+
+    // Event listeners
+    group.addEventListener('click', () => handleGuess(note));
+    group.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleGuess(note);
+      }
+    });
+
+    svg.appendChild(group);
   });
+
+  noteWheelContainer.appendChild(svg);
 }
 
 // Position the dot on the fretboard using CSS grid
@@ -233,10 +300,10 @@ function newPosition() {
   feedbackEl.classList.remove('correct', 'incorrect');
   nextBtn.classList.add('hidden');
 
-  // Enable all buttons and remove styling
-  document.querySelectorAll('.note-btn').forEach(btn => {
-    btn.disabled = false;
-    btn.classList.remove('correct-answer', 'wrong-answer');
+  // Enable all wheel segments and remove styling
+  document.querySelectorAll('.wheel-segment').forEach(segment => {
+    segment.classList.remove('disabled', 'correct-answer', 'wrong-answer');
+    segment.setAttribute('tabindex', '0');
   });
 
   positionDot(currentPosition.string, currentPosition.fret);
@@ -285,13 +352,14 @@ function handleGuess(note) {
   feedbackEl.classList.remove('hidden');
   feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
 
-  // Highlight buttons
-  document.querySelectorAll('.note-btn').forEach(btn => {
-    btn.disabled = true;
-    if (btn.dataset.note === correctNote) {
-      btn.classList.add('correct-answer');
-    } else if (btn.dataset.note === note && !isCorrect) {
-      btn.classList.add('wrong-answer');
+  // Highlight wheel segments
+  document.querySelectorAll('.wheel-segment').forEach(segment => {
+    segment.classList.add('disabled');
+    segment.setAttribute('tabindex', '-1');
+    if (segment.dataset.note === correctNote) {
+      segment.classList.add('correct-answer');
+    } else if (segment.dataset.note === note && !isCorrect) {
+      segment.classList.add('wrong-answer');
     }
   });
 
@@ -503,7 +571,7 @@ document.addEventListener('keydown', (e) => {
 function init() {
   loadSettings();
   initFretboard();
-  initNoteButtons();
+  initNoteWheel();
   updateSessionDisplay();
   newPosition();
 }
