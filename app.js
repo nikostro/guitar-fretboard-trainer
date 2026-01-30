@@ -21,6 +21,39 @@ let autoAdvanceTimeout = null;
 
 // Stats storage
 const STORAGE_KEY = 'fretboard-trainer-stats';
+const SETTINGS_KEY = 'fretboard-trainer-settings';
+
+// Settings state
+let settings = {
+  frets: [true, true, true, true, true, true, true, true, true, true, true, true, true], // 0-12
+  strings: [true, true, true, true, true, true] // indices 0-5
+};
+
+function loadSettings() {
+  try {
+    const stored = localStorage.getItem(SETTINGS_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Validate and merge with defaults
+      if (parsed.frets && Array.isArray(parsed.frets) && parsed.frets.length === 13) {
+        settings.frets = parsed.frets;
+      }
+      if (parsed.strings && Array.isArray(parsed.strings) && parsed.strings.length === 6) {
+        settings.strings = parsed.strings;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load settings:', e);
+  }
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (e) {
+    console.error('Failed to save settings:', e);
+  }
+}
 
 function loadStats() {
   try {
@@ -91,6 +124,10 @@ const statsToggle = document.getElementById('stats-toggle');
 const statsView = document.getElementById('stats-view');
 const closeStats = document.getElementById('close-stats');
 const resetStatsBtn = document.getElementById('reset-stats');
+const settingsToggle = document.getElementById('settings-toggle');
+const settingsView = document.getElementById('settings-view');
+const closeSettings = document.getElementById('close-settings');
+const resetSettingsBtn = document.getElementById('reset-settings');
 
 // Session stats elements
 const sessionCorrectEl = document.getElementById('session-correct');
@@ -175,9 +212,17 @@ function newPosition() {
     autoAdvanceTimeout = null;
   }
 
+  // Get valid frets and strings from settings
+  const validFrets = settings.frets
+    .map((enabled, i) => enabled ? i : -1)
+    .filter(i => i >= 0);
+  const validStrings = settings.strings
+    .map((enabled, i) => enabled ? i : -1)
+    .filter(i => i >= 0);
+
   currentPosition = {
-    string: Math.floor(Math.random() * 6),
-    fret: Math.floor(Math.random() * FRET_COUNT)
+    string: validStrings[Math.floor(Math.random() * validStrings.length)],
+    fret: validFrets[Math.floor(Math.random() * validFrets.length)]
   };
   correctNote = getNoteDisplayName(getNoteAtPosition(currentPosition.string, currentPosition.fret));
   hasAnswered = false;
@@ -344,6 +389,100 @@ resetStatsBtn.addEventListener('click', () => {
   }
 });
 
+// Settings event listeners
+settingsToggle.addEventListener('click', () => {
+  updateSettingsUI();
+  settingsView.classList.remove('hidden');
+});
+
+closeSettings.addEventListener('click', () => {
+  settingsView.classList.add('hidden');
+});
+
+// Update settings UI to reflect current state
+function updateSettingsUI() {
+  document.querySelectorAll('#fret-toggles .toggle-btn').forEach(btn => {
+    const fret = parseInt(btn.dataset.fret);
+    btn.classList.toggle('active', settings.frets[fret]);
+  });
+  document.querySelectorAll('#string-toggles .toggle-btn').forEach(btn => {
+    const string = parseInt(btn.dataset.string);
+    btn.classList.toggle('active', settings.strings[string]);
+  });
+}
+
+// Fret toggle buttons
+document.getElementById('fret-toggles').addEventListener('click', (e) => {
+  const btn = e.target.closest('.toggle-btn');
+  if (!btn) return;
+
+  const fret = parseInt(btn.dataset.fret);
+  const newValue = !settings.frets[fret];
+
+  // Prevent deselecting all frets
+  const activeCount = settings.frets.filter(Boolean).length;
+  if (!newValue && activeCount <= 1) return;
+
+  settings.frets[fret] = newValue;
+  btn.classList.toggle('active', newValue);
+  saveSettings();
+});
+
+// String toggle buttons
+document.getElementById('string-toggles').addEventListener('click', (e) => {
+  const btn = e.target.closest('.toggle-btn');
+  if (!btn) return;
+
+  const string = parseInt(btn.dataset.string);
+  const newValue = !settings.strings[string];
+
+  // Prevent deselecting all strings
+  const activeCount = settings.strings.filter(Boolean).length;
+  if (!newValue && activeCount <= 1) return;
+
+  settings.strings[string] = newValue;
+  btn.classList.toggle('active', newValue);
+  saveSettings();
+});
+
+// Frets All/None buttons
+document.getElementById('frets-all').addEventListener('click', () => {
+  settings.frets = settings.frets.map(() => true);
+  saveSettings();
+  updateSettingsUI();
+});
+
+document.getElementById('frets-none').addEventListener('click', () => {
+  // Keep first fret selected
+  settings.frets = settings.frets.map((_, i) => i === 0);
+  saveSettings();
+  updateSettingsUI();
+});
+
+// Strings All/None buttons
+document.getElementById('strings-all').addEventListener('click', () => {
+  settings.strings = settings.strings.map(() => true);
+  saveSettings();
+  updateSettingsUI();
+});
+
+document.getElementById('strings-none').addEventListener('click', () => {
+  // Keep first string selected
+  settings.strings = settings.strings.map((_, i) => i === 0);
+  saveSettings();
+  updateSettingsUI();
+});
+
+// Reset settings to defaults
+resetSettingsBtn.addEventListener('click', () => {
+  if (confirm('Reset settings to defaults?')) {
+    settings.frets = [true, true, true, true, true, true, true, true, true, true, true, true, true];
+    settings.strings = [true, true, true, true, true, true];
+    saveSettings();
+    updateSettingsUI();
+  }
+});
+
 // No resize handler needed - CSS grid handles dot positioning automatically
 
 // Keyboard support
@@ -356,11 +495,13 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.key === 'Escape') {
     statsView.classList.add('hidden');
+    settingsView.classList.add('hidden');
   }
 });
 
 // Initialize
 function init() {
+  loadSettings();
   initFretboard();
   initNoteButtons();
   updateSessionDisplay();

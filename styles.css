@@ -56,6 +56,12 @@ h1 {
   font-weight: 600;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+#settings-toggle,
 #stats-toggle {
   background: transparent;
   border: none;
@@ -66,6 +72,7 @@ h1 {
   transition: background 0.2s;
 }
 
+#settings-toggle:hover,
 #stats-toggle:hover {
   background: var(--bg-card);
   color: var(--text);
@@ -243,11 +250,11 @@ main {
 }
 
 #note-dot {
-  width: 24px;
-  height: 24px;
-  background: var(--dot-color);
+  width: 14px;
+  height: 14px;
+  background: white;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(233, 69, 96, 0.5);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   transition: background 0.2s ease, box-shadow 0.2s ease;
   z-index: 10;
   /* Grid positioning */
@@ -500,6 +507,112 @@ main {
   color: #000;
 }
 
+/* Settings view */
+#settings-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-dark);
+  padding: 16px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+#settings-view.hidden {
+  display: none;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings-header h2 {
+  font-size: 1.5rem;
+}
+
+#close-settings {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  line-height: 1;
+}
+
+.settings-section {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.settings-section h3 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.toggle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.toggle-btn {
+  min-width: 42px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-btn:hover {
+  border-color: var(--accent);
+}
+
+.toggle-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.helper-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.helper-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.helper-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
 /* Utility */
 .hidden {
   display: none !important;
@@ -531,7 +644,7 @@ main {
   }
 
   #note-dot {
-    width: 28px;
-    height: 28px;
+    width: 16px;
+    height: 16px;
   }
 }

@@ -16,11 +16,18 @@
   <div id="app">
     <header>
       <h1>Fretboard Trainer</h1>
-      <button id="stats-toggle" aria-label="Toggle stats">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-        </svg>
-      </button>
+      <div class="header-buttons">
+        <button id="settings-toggle" aria-label="Settings">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          </svg>
+        </button>
+        <button id="stats-toggle" aria-label="Toggle stats">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <main id="practice-view">
@@ -84,6 +91,54 @@
       </div>
 
       <button id="reset-stats" class="danger-btn">Reset All Stats</button>
+    </aside>
+
+    <aside id="settings-view" class="hidden">
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button id="close-settings" aria-label="Close settings">&times;</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Frets</h3>
+        <div id="fret-toggles" class="toggle-grid">
+          <button class="toggle-btn active" data-fret="0">Open</button>
+          <button class="toggle-btn active" data-fret="1">1</button>
+          <button class="toggle-btn active" data-fret="2">2</button>
+          <button class="toggle-btn active" data-fret="3">3</button>
+          <button class="toggle-btn active" data-fret="4">4</button>
+          <button class="toggle-btn active" data-fret="5">5</button>
+          <button class="toggle-btn active" data-fret="6">6</button>
+          <button class="toggle-btn active" data-fret="7">7</button>
+          <button class="toggle-btn active" data-fret="8">8</button>
+          <button class="toggle-btn active" data-fret="9">9</button>
+          <button class="toggle-btn active" data-fret="10">10</button>
+          <button class="toggle-btn active" data-fret="11">11</button>
+          <button class="toggle-btn active" data-fret="12">12</button>
+        </div>
+        <div class="helper-buttons">
+          <button id="frets-all" class="helper-btn">All</button>
+          <button id="frets-none" class="helper-btn">None</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Strings</h3>
+        <div id="string-toggles" class="toggle-grid">
+          <button class="toggle-btn active" data-string="0">E</button>
+          <button class="toggle-btn active" data-string="1">B</button>
+          <button class="toggle-btn active" data-string="2">G</button>
+          <button class="toggle-btn active" data-string="3">D</button>
+          <button class="toggle-btn active" data-string="4">A</button>
+          <button class="toggle-btn active" data-string="5">E</button>
+        </div>
+        <div class="helper-buttons">
+          <button id="strings-all" class="helper-btn">All</button>
+          <button id="strings-none" class="helper-btn">None</button>
+        </div>
+      </div>
+
+      <button id="reset-settings" class="danger-btn">Reset to Defaults</button>
     </aside>
   </div>
 
