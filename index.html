@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="Practice guitar fretboard note recognition">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Fretboard Trainer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Fretboard Trainer</h1>
+      <button id="stats-toggle" aria-label="Toggle stats">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+      </button>
+    </header>
+
+    <main id="practice-view">
+      <div id="session-stats">
+        <span id="session-correct">0</span> / <span id="session-total">0</span>
+        <span id="session-percent">(0%)</span>
+      </div>
+
+      <div id="fretboard-container">
+        <div id="string-labels">
+          <span>E</span>
+          <span>B</span>
+          <span>G</span>
+          <span>D</span>
+          <span>A</span>
+          <span>E</span>
+        </div>
+        <div id="fretboard">
+          <div id="fret-numbers"></div>
+          <div id="strings"></div>
+          <div id="frets"></div>
+          <div id="fret-markers"></div>
+          <div id="note-dot"></div>
+        </div>
+      </div>
+
+      <div id="feedback" class="hidden"></div>
+
+      <div id="note-buttons"></div>
+
+      <button id="next-btn" class="hidden">Next</button>
+    </main>
+
+    <aside id="stats-view" class="hidden">
+      <div class="stats-header">
+        <h2>Your Progress</h2>
+        <button id="close-stats" aria-label="Close stats">&times;</button>
+      </div>
+
+      <div class="stats-section">
+        <h3>Overall</h3>
+        <div class="stat-row">
+          <span>Total Attempts</span>
+          <span id="total-attempts">0</span>
+        </div>
+        <div class="stat-row">
+          <span>Accuracy</span>
+          <span id="overall-accuracy">0%</span>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <h3>By Note</h3>
+        <div id="note-stats"></div>
+      </div>
+
+      <div class="stats-section">
+        <h3>By Fret</h3>
+        <div id="fret-stats"></div>
+      </div>
+
+      <button id="reset-stats" class="danger-btn">Reset All Stats</button>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
