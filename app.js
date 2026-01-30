@@ -17,6 +17,7 @@ let correctNote = '';
 let hasAnswered = false;
 let sessionCorrect = 0;
 let sessionTotal = 0;
+let autoAdvanceTimeout = null;
 
 // Stats storage
 const STORAGE_KEY = 'fretboard-trainer-stats';
@@ -98,11 +99,19 @@ const sessionPercentEl = document.getElementById('session-percent');
 
 // Initialize fretboard display
 function initFretboard() {
-  // Create fret numbers
+  // Create fret numbers: empty nut label + frets 1-12
   const fretNumbers = document.getElementById('fret-numbers');
-  for (let i = 0; i < FRET_COUNT; i++) {
+
+  // Nut label (empty)
+  const nutLabel = document.createElement('span');
+  nutLabel.className = 'nut-label';
+  fretNumbers.appendChild(nutLabel);
+
+  // Fret numbers 1-12
+  for (let i = 1; i < FRET_COUNT; i++) {
     const span = document.createElement('span');
     span.textContent = i;
+    span.style.gridColumn = i + 1; // Column 2-13 (1 is nut)
     fretNumbers.appendChild(span);
   }
 
@@ -114,17 +123,17 @@ function initFretboard() {
     stringsContainer.appendChild(string);
   }
 
-  // Create frets
+  // Create frets (12 frets, not including nut)
   const fretsContainer = document.getElementById('frets');
-  for (let i = 0; i < FRET_COUNT; i++) {
+  for (let i = 1; i < FRET_COUNT; i++) {
     const fret = document.createElement('div');
     fret.className = 'fret';
     fretsContainer.appendChild(fret);
   }
 
-  // Create fret markers
+  // Create fret markers (for frets 1-12)
   const markersContainer = document.getElementById('fret-markers');
-  for (let i = 0; i < FRET_COUNT; i++) {
+  for (let i = 1; i < FRET_COUNT; i++) {
     const slot = document.createElement('div');
     slot.className = 'fret-marker-slot';
 
@@ -150,23 +159,22 @@ function initNoteButtons() {
   });
 }
 
-// Position the dot on the fretboard
+// Position the dot on the fretboard using CSS grid
 function positionDot(stringIndex, fret) {
-  const fretboardRect = fretboard.getBoundingClientRect();
-  const fretWidth = fretboardRect.width / FRET_COUNT;
-  const stringHeight = (fretboardRect.height - 18) / 6; // Subtract fret number area
-
-  // Position in the middle of the fret
-  const x = (fret * fretWidth) + (fretWidth / 2);
-  // Position on the string (accounting for fret number area at top)
-  const y = 18 + (stringIndex * stringHeight) + (stringHeight / 2) + 3;
-
-  noteDot.style.left = `${x}px`;
-  noteDot.style.top = `${y}px`;
+  // Grid columns: 1 = nut, 2-13 = frets 1-12
+  // Grid rows: 1 = fret numbers, 2-7 = strings
+  noteDot.style.gridColumn = fret + 1; // fret 0 -> column 1 (nut), fret 1 -> column 2, etc.
+  noteDot.style.gridRow = stringIndex + 2; // string 0 -> row 2, string 1 -> row 3, etc.
 }
 
 // Generate a new random position
 function newPosition() {
+  // Cancel any pending auto-advance
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
+
   currentPosition = {
     string: Math.floor(Math.random() * 6),
     fret: Math.floor(Math.random() * FRET_COUNT)
@@ -242,7 +250,13 @@ function handleGuess(note) {
     }
   });
 
-  nextBtn.classList.remove('hidden');
+  if (isCorrect) {
+    // Auto-advance after 800ms on correct answer
+    autoAdvanceTimeout = setTimeout(newPosition, 800);
+  } else {
+    // Show Next button for incorrect answers so user can study
+    nextBtn.classList.remove('hidden');
+  }
 }
 
 // Update session display
@@ -293,11 +307,12 @@ function renderStats() {
     const data = stats.fretStats[i] || { correct: 0, total: 0 };
     const percent = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
     const barClass = percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor';
+    const fretLabel = i === 0 ? 'Open' : `Fret ${i}`;
 
     const row = document.createElement('div');
     row.className = 'stat-bar';
     row.innerHTML = `
-      <span class="label">Fret ${i}</span>
+      <span class="label">${fretLabel}</span>
       <div class="bar-container">
         <div class="bar ${data.total > 0 ? barClass : ''}" style="width: ${percent}%"></div>
       </div>
@@ -329,14 +344,7 @@ resetStatsBtn.addEventListener('click', () => {
   }
 });
 
-// Handle window resize to reposition dot
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    positionDot(currentPosition.string, currentPosition.fret);
-  }, 100);
-});
+// No resize handler needed - CSS grid handles dot positioning automatically
 
 // Keyboard support
 document.addEventListener('keydown', (e) => {

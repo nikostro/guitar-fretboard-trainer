@@ -120,24 +120,33 @@ main {
   border-radius: 4px;
   height: 140px;
   overflow: hidden;
+  /* CSS Grid for dot positioning: nut + 12 frets */
+  display: grid;
+  grid-template-columns: 12px repeat(12, 1fr);
+  grid-template-rows: 18px repeat(6, 1fr);
 }
 
 #fret-numbers {
+  display: contents;
+}
+
+#fret-numbers .nut-label {
+  grid-row: 1;
+  grid-column: 1;
+  background: rgba(0,0,0,0.3);
+}
+
+#fret-numbers span {
   display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 18px;
+  align-items: center;
+  justify-content: center;
   font-size: 0.65rem;
   color: var(--text-muted);
   background: rgba(0,0,0,0.3);
 }
 
-#fret-numbers span {
-  flex: 1;
-  text-align: center;
-  line-height: 18px;
+#fret-numbers span:not(.nut-label) {
+  grid-row: 1;
 }
 
 #strings {
@@ -150,6 +159,7 @@ main {
   flex-direction: column;
   justify-content: space-between;
   padding: 6px 0;
+  pointer-events: none;
 }
 
 .string {
@@ -165,13 +175,23 @@ main {
 .string:nth-child(5) { height: 3px; }
 .string:nth-child(6) { height: 3.5px; }
 
+/* Nut styling */
+#nut {
+  grid-row: 2 / -1;
+  grid-column: 1;
+  background: linear-gradient(90deg, #f5f5dc, #d4c896);
+  border-right: 3px solid #c0c0c0;
+  z-index: 1;
+}
+
 #frets {
   position: absolute;
   top: 18px;
   bottom: 0;
-  left: 0;
+  left: 12px;
   right: 0;
   display: flex;
+  pointer-events: none;
 }
 
 .fret {
@@ -180,16 +200,11 @@ main {
   position: relative;
 }
 
-.fret:first-child {
-  border-left: 4px solid #f5f5f5;
-  background: linear-gradient(90deg, rgba(245,245,245,0.1), transparent 30%);
-}
-
 #fret-markers {
   position: absolute;
   top: 18px;
   bottom: 0;
-  left: 0;
+  left: 12px;
   right: 0;
   display: flex;
   pointer-events: none;
@@ -228,15 +243,16 @@ main {
 }
 
 #note-dot {
-  position: absolute;
   width: 24px;
   height: 24px;
   background: var(--dot-color);
   border-radius: 50%;
-  transform: translate(-50%, -50%);
   box-shadow: 0 2px 8px rgba(233, 69, 96, 0.5);
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
   z-index: 10;
+  /* Grid positioning */
+  justify-self: center;
+  align-self: center;
 }
 
 #note-dot.correct {
