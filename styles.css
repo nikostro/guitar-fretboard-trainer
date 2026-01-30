@@ -305,15 +305,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
-  max-height: 300px;
+  min-height: 0;
+  width: 100%;
 }
 
 #note-wheel {
   width: 100%;
-  height: 100%;
-  max-width: 280px;
-  max-height: 280px;
+  aspect-ratio: 1;
 }
 
 .wheel-segment {
@@ -340,7 +338,7 @@ main {
 
 .segment-label {
   fill: var(--text);
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
   text-anchor: middle;
   dominant-baseline: central;
@@ -674,11 +672,6 @@ main {
     height: 100px;
   }
 
-  #note-wheel-container {
-    min-height: 150px;
-    max-height: 200px;
-  }
-
   .segment-label {
     font-size: 8px;
   }
@@ -701,15 +694,6 @@ main {
   #note-dot {
     width: 16px;
     height: 16px;
-  }
-
-  #note-wheel-container {
-    max-height: 350px;
-  }
-
-  #note-wheel {
-    max-width: 320px;
-    max-height: 320px;
   }
 
   .segment-label {
